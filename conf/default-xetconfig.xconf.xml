@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xconf:XET xmlns:xconf="http://xet.sf.net/XETConfiguration">
+  <xconf:Debugger>
+    <!-- Step possible value = Yes, No -->
+    <xconf:Step>Yes</xconf:Step>
+    <!-- Step type value = Step Into, Step Over -->
+    <xconf:StepType>Step Into</xconf:StepType>
+  </xconf:Debugger>
+  <xconf:Logger>
+    <!-- LogMode possible value = None, Console, LogFile -->
+    <xconf:LogLevel>
+      <xconf:Matcher>Finest</xconf:Matcher>
+      <xconf:Executor>Finest</xconf:Executor>
+      <xconf:Set-of>Finest</xconf:Set-of>
+    </xconf:LogLevel>
+  </xconf:Logger>
+</xconf:XET>
