@@ -1,6 +1,6 @@
 SMASH is short for SiMulated Adaptable Smart Home. It is a simulation platform developed at the Department of Telematics, Norwegian University of Science and Technology, Trondheim, Norway with the purpose to assist in performing case-based simulation studies with focus on the consumer side of the power systems. Example uses of SMASH are 1) to test demand-response (DR) programs before real-life pilot or deployment and 2) to test local energy management policies. SMASH is different from other power systems simulation tools in that it allows great specification details on the consumer side. For example, consumer plans, consumer comfort requirements, house local policies, and consumer-subscribed DR programs can be specified. As a result, various consumer behaviors are reflected in the output results.
 
-For more info on how to use or further develop SMASH, please check the technical report available at http://smash.item.ntnu.no/wiki/index.php
+For more info on how to use or further develop SMASH, please check the technical report available at http://smash.item.ntnu.no
 
 Note: This tool was developed mainly to assist me in conducting simulation studies as part of my PhD thesis. Performance and reliability were not of focus due to time limitation. Comments were not always added. Expect to find bugs...
 
