@@ -1,0 +1,452 @@
+<html>
+<head>
+<script src="../js/jquery-1.10.2.min.js"></script>
+<script src="../js/highcharts.js"></script>
+<script>
+$(document).ready(function() {
+	var householdEnergyCDFOptions = {
+        chart: {
+			defaultSeriesType: 'line',
+            renderTo: 'graph1_slot1',
+        },
+		title: {
+            text: 'Energy consumed (PDF&CDF)'
+        },
+        xAxis: {
+            title: {
+				text: 'Time',
+				style: {
+                    color: '#000000'
+                }
+			}
+        },
+        yAxis: [{ // Primary yAxis
+                labels: {
+                    format: '{value} kWh',
+                    style: {
+                        color: '#000000'
+                    }
+                },
+                title: {
+                    text: 'Energy consumed (CDF)',
+                    style: {
+                        color: '#000000'
+                    }
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: 'Energy consumed',
+                    style: {
+                        color: '#000000'
+                    }
+                },
+                labels: {
+                    format: '{value} kWh',
+                    style: {
+                        color: '#000000'
+                    }
+                },
+                opposite: true
+            }],
+		tooltip: {
+			shared: true
+		},
+        series: [{
+                name: 'Energy consumed',
+                color: '#1F497D',
+                type: 'column',
+                yAxis: 1,
+                tooltip: {
+                    valueSuffix: ' kWh'
+                },
+				data: []
+            }, {
+                name: 'Energy consumed (CDF)',
+                color: '#953735',
+                type: 'spline',
+                tooltip: {
+                    valueSuffix: ' kWh'
+                },
+				data: []
+            }]
+    };
+	
+	var householdCostCDFOptions = {
+        chart: {
+			defaultSeriesType: 'line',
+            renderTo: 'graph1_slot2',
+        },
+		title: {
+            text: 'Electricity cost (PDF&CDF)'
+        },
+        xAxis: {
+            title: {
+				text: 'Time',
+				style: {
+                    color: '#000000'
+                }
+			}
+        },
+        yAxis: [{ // Primary yAxis
+                labels: {
+                    format: '{value} NOK',
+                    style: {
+                        color: '#000000'
+                    }
+                },
+                title: {
+                    text: 'Cost (CDF)',
+                    style: {
+                        color: '#000000'
+                    }
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: 'Cost',
+                    style: {
+                        color: '#000000'
+                    }
+                },
+                labels: {
+                    format: '{value} NOK',
+                    style: {
+                        color: '#000000'
+                    }
+                },
+                opposite: true
+            }],
+		tooltip: {
+			shared: true
+		},
+        series: [{
+                name: 'Cost',
+                color: '#1F497D',
+                type: 'column',
+                yAxis: 1,
+                tooltip: {
+                    valueSuffix: ' NOK'
+                },
+				data: []
+            }, {
+                name: 'Cost (CDF)',
+                color: '#953735',
+                type: 'spline',
+                tooltip: {
+                    valueSuffix: ' NOK'
+                },
+				data: []
+            }]
+    };
+	
+	var householdPeakLoadOptions = {
+        chart: {
+			defaultSeriesType: 'line',
+            renderTo: 'graph1_slot3',
+            type: 'line',
+        },
+		title: {
+            text: 'Avg Peak Load'
+        },
+        xAxis: {
+            title: {
+				text: 'Time',
+				style: {
+                    color: '#000000'
+                }
+			}
+        },
+        yAxis: {
+            title: {
+                text: 'Watt',
+				style: {
+                    color: '#000000'
+                }
+            }
+        },
+        series: [{
+			name: 'Peak load',
+			color: '#1F497D',
+			data: []
+		}]
+    };
+	
+	<!-- Default graph config -->
+	var def_entity = "living";
+	var def_date = "d0";
+	var def_month = "m1";
+	var def_year = "y2006";
+	
+	$('#update_button').click(function() { 
+		var config_date = $('#date_select').val();
+		var config_month = $('#month_select').val();
+		var config_year = $('#year_select').val();
+		
+		// clear the old data and graphs first
+		householdEnergyCDFOptions.series[0].data = [];
+		householdEnergyCDFOptions.series[1].data = [];
+		householdCostCDFOptions.series[0].data = [];
+		householdCostCDFOptions.series[1].data = [];
+		householdPeakLoadOptions.series[0].data = [];
+		$('#graph1_slot1').html('');
+		$('#graph1_slot2').html('');
+		$('#graph1_slot3').html('');
+		
+		// from the config, we know the file we need to load the data from
+		
+		// for rooms
+		var dataFile_energy = "full_energy.txt";
+		var dataFile_peakload = "full_peakload.txt";
+		
+		// for household
+		var dataFile_cost = "full_cost.txt";
+		
+		$.ajaxSetup ({ 
+			cache: false 
+		}); 
+		
+		if(config_date>0) {
+			// ENERGY DATA
+			showGraph(config_year, config_month, config_date, dataFile_energy, householdEnergyCDFOptions.series[0].data, householdEnergyCDFOptions, false);
+			showGraph(config_year, config_month, config_date, dataFile_energy, householdEnergyCDFOptions.series[1].data, householdEnergyCDFOptions, true);
+			
+			// COST DATA
+			showGraph(config_year, config_month, config_date, dataFile_cost, householdCostCDFOptions.series[0].data, householdCostCDFOptions, false);
+			showGraph(config_year, config_month, config_date, dataFile_cost, householdCostCDFOptions.series[1].data, householdCostCDFOptions, true);
+			
+			// PEAK LOAD DATA
+			showGraph(config_year, config_month, config_date, dataFile_peakload, householdPeakLoadOptions.series[0].data, householdPeakLoadOptions, false);				
+		} else {
+			// ENERGY DATA
+			showGraph_daily(config_year, config_month, dataFile_energy, householdEnergyCDFOptions.series[0].data, householdEnergyCDFOptions, false, false);
+			showGraph_daily(config_year, config_month, dataFile_energy, householdEnergyCDFOptions.series[1].data, householdEnergyCDFOptions, false, true);
+			
+			// COST DATA
+			showGraph_daily(config_year, config_month, dataFile_cost, householdCostCDFOptions.series[0].data, householdCostCDFOptions, false, false);
+			showGraph_daily(config_year, config_month, dataFile_cost, householdCostCDFOptions.series[1].data, householdCostCDFOptions, false, true);
+			
+			// PEAK LOAD DATA
+			showGraph_daily(config_year, config_month, dataFile_peakload, householdPeakLoadOptions.series[0].data, householdPeakLoadOptions, true, false);
+		}
+	});
+});
+
+function showGraph(config_year, config_month, config_date, dataFile, dataArray, graphOptions, isCDF) {
+	$.get(dataFile, function(data) {
+		var lines = data.split('\n');
+		var found_year = 0;
+		var found_month = 0;
+		var scan_date = 0;
+		var prevValue = 0;
+		$.each(lines, function(lineNo, line) { 
+			scan_date = scan_date + 1;
+		
+			if(line.indexOf('#Y-' + config_year) == 0) { // we get to the right year
+				found_year = 1;	
+			}
+			if(found_year == 1 && line.indexOf('#M-' + config_month) == 0) { // we get to the right month and year
+				found_month = 1;
+				scan_date = 0;
+			}
+			if(found_month == 1 && scan_date == config_date) { // we get to the right date
+				var items = line.split(',');
+				$.each(items, function(itemNo, item) {
+				
+					if(isCDF) {
+						if(item!='null') {
+							prevValue = prevValue + parseFloat(item);
+							dataArray.push(prevValue);
+						} else {
+							dataArray.push(null);
+						}
+					} else {
+						if(item!='null') {
+							dataArray.push(parseFloat(item));
+						} else {
+							dataArray.push(null);
+						}
+					}
+				});
+				return false;
+			}
+		});
+		
+		new Highcharts.Chart(graphOptions);
+	});	
+}
+
+function showGraph_daily(config_year, config_month, dataFile, dataArray, graphOptions, isAvg, isCDF) {
+	$.get(dataFile, function(data) {
+		var lines = data.split('\n');
+		var found_year = 0;
+		var found_month = 0;
+		var cdf = 0;
+		$.each(lines, function(lineNo, line) {		
+			if(line.indexOf('#Y-' + config_year) == 0) { // we get to the right year
+				found_year = 1;	
+			} else if(found_year == 1 && line.indexOf('#M-' + config_month) == 0) { // we get to the right month and year
+				found_month = 1;
+			} else if(found_month == 1 && $.trim(line) == '') { // we are slipping to the next month > end now
+				return false;
+			} else if(found_month == 1) { 
+				var dailyVal = 0;
+				var items = line.split(',');
+				$.each(items, function(itemNo, item) {
+					if(item!='null') {
+						dailyVal = dailyVal + parseFloat(item);
+					}
+				});
+				
+				if(isCDF==true && isAvg==false) {
+					cdf = cdf + dailyVal;
+					dataArray.push(cdf);
+				} else {
+					if(isAvg) dataArray.push(dailyVal/items.length);
+					else dataArray.push(dailyVal);
+				}
+			}
+		});
+		
+		new Highcharts.Chart(graphOptions);
+	});	
+}
+
+function showGraph_peakload_daily(config_year, config_month, dataFile, dataArray, graphOptions) {
+	$.get(dataFile, function(data) {
+		var lines = data.split('\n');
+		var found_year = 0;
+		var found_month = 0;
+		var max = 0;
+		$.each(lines, function(lineNo, line) {		
+			if(line.indexOf('#Y-' + config_year) == 0) { // we get to the right year
+				found_year = 1;	
+			} else if(found_year == 1 && line.indexOf('#M-' + config_month) == 0) { // we get to the right month and year
+				found_month = 1;
+			} else if(found_month == 1 && $.trim(line) == '') { // we are slipping to the next month > end now
+				return false;
+			} else if(found_month == 1) { 
+				var dailyVal = 0;
+				var items = line.split(',');
+				$.each(items, function(itemNo, item) {
+					if(item!='null') {
+						if(parseFloat(item)>max) {
+							max = parseFloat(item);
+						}
+					}
+				});
+				
+				dataArray.push(max);
+			}
+		});
+		
+		new Highcharts.Chart(graphOptions);
+	});	
+}
+</script>
+</head>
+<body>
+<h2>Result graph</h2>
+<div id="graph1_area">
+  <div id="graph1_config">
+    <table>
+	  <tr>
+	    <td>Entity</td>
+		<td>
+		  <select id="entity_select">
+		    <option value="Household">All houses</option>
+		  </select>
+		</td>
+	  </tr>
+	  <tr>
+	    <td>Date</td>
+		<td>
+          <select id="date_select">
+		    <option value="0">-</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+			<option value="16">16</option>
+			<option value="17">17</option>
+			<option value="18">18</option>
+			<option value="19">19</option>
+			<option value="20">20</option>
+			<option value="21">21</option>
+			<option value="22">22</option>
+			<option value="23">23</option>
+			<option value="24">24</option>
+			<option value="25">25</option>
+			<option value="26">26</option>
+			<option value="27">27</option>
+			<option value="28">28</option>
+			<option value="29">29</option>
+			<option value="30">30</option>
+			<option value="31">31</option>
+		  </select>
+		</td>
+	  </tr>
+	  <tr>
+	    <td>Month</td>
+		<td>
+		  <select id="month_select">
+			<option value="Jan">Jan</option>
+			<option value="Feb">Feb</option>
+			<option value="Mar">Mar</option>
+			<option value="Apr">Apr</option>
+			<option value="May">May</option>
+			<option value="Jun">Jun</option>
+			<option value="Jul">Jul</option>
+			<option value="Aug">Aug</option>
+			<option value="Sep">Sep</option>
+			<option value="Oct">Oct</option>
+			<option value="Nov">Nov</option>
+			<option value="Dec">Dec</option>
+		  </select>
+		</td>
+	  </tr>
+	  <tr>
+	    <td>Year</td>
+		<td>
+          <select id="year_select">
+			<option value="2005">2005</option>
+			<option value="2006">2006</option>
+			<option value="2007">2007</option>
+			<option value="2008">2008</option>
+			<option value="2009">2009</option>
+			<option value="2010">2010</option>
+			<option value="2011">2011</option>
+			<option value="2012">2012</option>
+			<option value="2013">2013</option>
+			<option value="2014">2014</option>
+			<option value="2015">2015</option>
+			<option value="2016">2016</option>
+			<option value="2017">2017</option>
+			<option value="2018">2018</option>
+			<option value="2019">2019</option>
+			<option value="2020">2020</option>
+		  </select>
+		</td>
+	  </tr>
+	  <tr>
+	    <td colspan="2"><input type="submit" id="update_button" value="Update"/></td>
+	  </tr>
+	</table>
+  </div>
+  <div id="graph1_main">
+    <div id="graph1_slot1" style="width:700px; height:300px;margin-bottom:10px;"></div>
+	<div id="graph1_slot2" style="width:700px; height:300px;margin-bottom:10px;"></div>
+	<div id="graph1_slot3" style="width:700px; height:300px;"></div>
+  </div>
+</div>
+</body>
+</html>
